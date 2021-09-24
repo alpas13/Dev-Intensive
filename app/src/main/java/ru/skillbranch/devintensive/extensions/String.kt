@@ -7,10 +7,13 @@ fun String.truncate(length: Int = 16): String {
 }
 
 fun String.stripHtml(): String {
-    return this.run {
-        replace("\\A<[&\'\"\\w\\s=>]*".toRegex(), "") }
+    return this
         .run {
-            replace("(?<=[\\w])<.*\\Z".toRegex(), "") }
+            replace("<[-/&\'\"\\w\\s=>]*".toRegex(), " ")
+        }
+        .run {
+            replace("&[ltg]+;[-;\\/&'\"\\w\\s=>]+&[ltg]+;".toRegex(), " ")
+        }
         .split(" ")
         .filter { it.isNotBlank() }
         .joinToString(" ")

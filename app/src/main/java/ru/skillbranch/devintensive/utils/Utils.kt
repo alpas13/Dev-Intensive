@@ -1,7 +1,5 @@
 package ru.skillbranch.devintensive.utils
 
-import java.util.*
-
 object Utils {
     fun parseFullName(fullName: String?): Pair<String?, String?> {
         val parts: List<String>? = fullName?.run {
@@ -14,7 +12,7 @@ object Utils {
         return firstName to lastName
     }
 
-    fun toInitials(firstName: String?, lastName: String?): String {
+    fun toInitials(firstName: String?, lastName: String?): String? {
         val firstLetter: Char? =
             if (firstName != null && firstName.isNotEmpty() && firstName != " ") {
                 firstName.first().uppercaseChar()
@@ -24,8 +22,12 @@ object Utils {
                 lastName.first().uppercaseChar()
             } else null
 
-        return if (firstLetter == null || lastLetter == null) "$firstLetter"
-        else "$firstLetter$lastLetter"
+        return when {
+            firstLetter != null && lastLetter != null -> "$firstLetter$lastLetter"
+            firstLetter != null -> "$firstLetter"
+            lastLetter != null -> "$lastLetter"
+            else -> null
+        }
     }
 
     fun transliteration(name: String, divider: String = " "): String {
@@ -38,14 +40,15 @@ object Utils {
             val word: MutableList<String> = mutableListOf()
 
             for (letter in fullName[it]) {
-                word.add(TRANSLITERATION_RU_LAT[letter.lowercaseChar()] ?: letter.toString())
+
+                if (!letter.isLowerCase())
+                    word.add(TRANSLITERATION_RU_LAT[letter.lowercaseChar()]?.uppercase() ?: letter.toString())
+                else
+                    word.add(TRANSLITERATION_RU_LAT[letter.lowercaseChar()] ?: letter.toString())
+
 
             }
             fullName[it] = word.joinToString("")
-                .replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.getDefault())
-                    else it.toString()
-                }
         }
 
         return fullName.joinToString(divider)
