@@ -42,7 +42,7 @@ enum class TimeUnits {
 
 
 fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String {
-    val sdf = SimpleDateFormat(pattern, Locale("ru", "RU"))
+    val sdf = SimpleDateFormat(pattern, Locale("ru"))
     val timeZoneOffset = sdf.timeZone.getOffset(this.time)
 
     return sdf.format(this.time.minus(timeZoneOffset))
