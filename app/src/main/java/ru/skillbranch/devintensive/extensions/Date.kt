@@ -1,5 +1,8 @@
 package ru.skillbranch.devintensive.extensions
 
+import android.os.Build
+import android.text.style.TtsSpan
+import androidx.annotation.RequiresApi
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,8 +42,10 @@ enum class TimeUnits {
 
 
 fun Date.format(pattern: String = "HH:mm:ss dd.MM.yy"): String {
-    val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
-    return dateFormat.format(this.add(-2, TimeUnits.HOUR))
+    val sdf = SimpleDateFormat(pattern, Locale("ru", "RU"))
+    val timeZoneOffset = sdf.timeZone.getOffset(this.time)
+
+    return sdf.format(this.time.minus(timeZoneOffset))
 }
 
 fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
