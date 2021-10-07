@@ -41,9 +41,15 @@ object Utils {
 
             for (letter in fullName[it]) {
 
-                if (!letter.isLowerCase())
-                    word.add(TRANSLITERATION_RU_LAT[letter.lowercaseChar()]?.uppercase() ?: letter.toString())
-                else
+                if (!letter.isLowerCase()) {
+                    val translitLetter: String? = TRANSLITERATION_RU_LAT[letter.lowercaseChar()]
+
+                    if (translitLetter != null) {
+                        if (translitLetter.length > 1)
+                            word.add("${translitLetter[0].uppercase()}${translitLetter[1]}")
+                        else word.add(translitLetter.uppercase())
+                    } else word.add(letter.uppercase())
+                } else
                     word.add(TRANSLITERATION_RU_LAT[letter.lowercaseChar()] ?: letter.toString())
 
 
