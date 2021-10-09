@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Profile">
+
+    </style>
+
+    <style name="Profile.EditText" parent="Profile">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textColor">@color/color_primary</item>
+        <item name="android:enabled">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:inputType">text</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <!--<style name="Profile.EditText.Single" parent="Profile">
+        <item name="android:singleLine">true</item>
+    </style>-->
+</resources>
