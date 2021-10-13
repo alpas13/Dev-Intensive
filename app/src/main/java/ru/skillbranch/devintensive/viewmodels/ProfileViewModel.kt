@@ -1,6 +1,8 @@
 package ru.skillbranch.devintensive.viewmodels
 
+import android.text.method.MultiTapKeyListener
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,10 +15,12 @@ import ru.skillbranch.devintensive.repository.PreferencesRepository
 class ProfileViewModel: ViewModel() {
     private val repository: PreferencesRepository = PreferencesRepository
     private val profileData = MutableLiveData<Profile>()
+    private val appTheme = MutableLiveData<Int>()
 
     init {
         Log.d("M_ProfileViewModel","init view model")
         profileData.value = repository.getProfile()
+        appTheme.value = repository.getAppTheme()
     }
 
     override fun onCleared() {
@@ -24,10 +28,23 @@ class ProfileViewModel: ViewModel() {
         Log.d("M_ProfileViewModel","view model cleared")
     }
 
-    fun getProfileDate(): LiveData<Profile> = profileData
+    fun getProfileData(): LiveData<Profile> = profileData
+    fun getTheme(): LiveData<Int> = appTheme
 
-    fun saveProfileDate(profile: Profile) {
+    fun saveProfileData(profile: Profile) {
         repository.saveProfile(profile)
         profileData.value = profile
     }
+
+    fun switchTheme() {
+        if (appTheme.value == AppCompatDelegate.MODE_NIGHT_YES) {
+            appTheme.value = AppCompatDelegate.MODE_NIGHT_NO
+        } else {
+            appTheme.value = AppCompatDelegate.MODE_NIGHT_YES
+        }
+
+        repository.saveAppTheme(appTheme.value!!)
+    }
+
+
 }

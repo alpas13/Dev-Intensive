@@ -10,14 +10,19 @@ import android.view.View
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.activity_profile.*
 import ru.skillbranch.devintensive.R
+import ru.skillbranch.devintensive.models.Profile
+import ru.skillbranch.devintensive.viewmodels.ProfileViewModel
 
 class ProfileActivity : AppCompatActivity() {
     companion object {
         const val IS_EDIT_MODE = "IS_EDIT_MODE"
     }
 
+    private lateinit var viewModel: ProfileViewModel
     var isEditMode = false
     lateinit var viewFields: Map<String, TextView>
 
@@ -25,11 +30,32 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
         initViews(savedInstanceState)
+        initViewModel()
+        Log.d("M_ProfileActivity", "onCreate")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBoolean(IS_EDIT_MODE,isEditMode)
+        outState.putBoolean(IS_EDIT_MODE, isEditMode)
+    }
+
+    private fun initViewModel() {
+        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
+        viewModel.getProfileData().observe(this, Observer { updateUI(it) })
+        viewModel.getTheme().observe(this, Observer { updateTheme(it) })
+    }
+
+    private fun updateTheme(mode: Int) {
+        Log.d("M_ProfileActivity", "updateTheme")
+        delegate.localNightMode = mode
+    }
+
+    private fun updateUI(profile: Profile) {
+        profile.toMap().also {
+            for ((k, v) in viewFields) {
+                v.text = it[k].toString()
+            }
+        }
     }
 
     private fun initViews(savedInstanceState: Bundle?) {
@@ -44,17 +70,29 @@ class ProfileActivity : AppCompatActivity() {
             "respect" to tv_respect,
         )
 
-        isEditMode = savedInstanceState?.getBoolean(IS_EDIT_MODE, false)?: false
+        isEditMode = savedInstanceState?.getBoolean(IS_EDIT_MODE, false) ?: false
         showCurrentMode(isEditMode)
 
         btn_edit.setOnClickListener {
+            if (isEditMode) saveProfileInfo()
             isEditMode = !isEditMode
             showCurrentMode(isEditMode)
+        }
+
+        btn_switch_theme.setOnClickListener {
+            viewModel.switchTheme()
         }
     }
 
     private fun showCurrentMode(isEdit: Boolean) {
-        val info = viewFields.filter { setOf("firstName", "lastName", "about", "repository").contains(it.key) }
+        val info = viewFields.filter {
+            setOf(
+                "firstName",
+                "lastName",
+                "about",
+                "repository"
+            ).contains(it.key)
+        }
         for ((_, v) in info) {
             v as EditText
             v.isFocusable = isEdit
@@ -79,16 +117,29 @@ class ProfileActivity : AppCompatActivity() {
                 ResourcesCompat.getDrawable(
                     context.resources,
                     R.drawable.ic_baseline_save_24,
-                    context.theme)
+                    context.theme
+                )
             } else {
                 ResourcesCompat.getDrawable(
                     context.resources,
                     R.drawable.ic_baseline_edit_24,
-                    context.theme)
+                    context.theme
+                )
             }
 
             background.colorFilter = filter
             setImageDrawable(icon)
+        }
+    }
+
+    private fun saveProfileInfo() {
+        Profile(
+            firstName = et_first_name.text.toString(),
+            lastName = et_last_name.text.toString(),
+            about = et_about.text.toString(),
+            repository = et_repository.text.toString(),
+        ).apply {
+            viewModel.saveProfileData(this)
         }
     }
 }
