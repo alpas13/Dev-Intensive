@@ -3,7 +3,7 @@ package ru.skillbranch.devintensive
 import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
-import ru.skillbranch.devintensive.repository.PreferencesRepository
+import ru.skillbranch.devintensive.repositories.PreferencesRepository
 
 /**
  * Created by Oleksiy Pasmarnov on 13.10.21
