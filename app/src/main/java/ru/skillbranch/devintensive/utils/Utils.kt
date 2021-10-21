@@ -18,21 +18,11 @@ object Utils {
     }
 
     fun toInitials(firstName: String?, lastName: String?): String? {
-        val firstLetter: Char? =
-            if (firstName != null && firstName.isNotEmpty() && firstName != " ") {
-                firstName.first().uppercaseChar()
-            } else null
-        val lastLetter: Char? =
-            if (lastName != null && lastName.isNotEmpty() && lastName != " ") {
-                lastName.first().uppercaseChar()
-            } else null
-
-        return when {
-            firstLetter != null && lastLetter != null -> "$firstLetter$lastLetter"
-            firstLetter != null -> "$firstLetter"
-            lastLetter != null -> "$lastLetter"
-            else -> null
-        }
+        val name = firstName.orEmpty().trim().getOrNull(0)?.uppercaseChar()
+        val surname = lastName.orEmpty().trim().getOrNull(0)?.uppercaseChar()
+        val firstInit = name?.toString() ?: ""
+        val secondInit = surname?.toString() ?: ""
+        return "$firstInit$secondInit".ifEmpty { null }
     }
 
     fun transliteration(payload: String, divider: String = " "): String {
