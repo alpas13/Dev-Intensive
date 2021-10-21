@@ -1,5 +1,10 @@
 package ru.skillbranch.devintensive.utils
 
+import android.content.Context
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.math.roundToInt
+
 object Utils {
     fun parseFullName(fullName: String?): Pair<String?, String?> {
         val parts: List<String>? = fullName?.run {
@@ -13,86 +18,83 @@ object Utils {
     }
 
     fun toInitials(firstName: String?, lastName: String?): String? {
-        val firstLetter: Char? =
-            if (firstName != null && firstName.isNotEmpty() && firstName != " ") {
-                firstName.first().uppercaseChar()
-            } else null
-        val lastLetter: Char? =
-            if (lastName != null && lastName.isNotEmpty() && lastName != " ") {
-                lastName.first().uppercaseChar()
-            } else null
-
-        return when {
-            firstLetter != null && lastLetter != null -> "$firstLetter$lastLetter"
-            firstLetter != null -> "$firstLetter"
-            lastLetter != null -> "$lastLetter"
-            else -> null
-        }
+        val name = firstName.orEmpty().trim().getOrNull(0)?.uppercaseChar()
+        val surname = lastName.orEmpty().trim().getOrNull(0)?.uppercaseChar()
+        val firstInit = name?.toString() ?: ""
+        val secondInit = surname?.toString() ?: ""
+        return "$firstInit$secondInit".ifEmpty { null }
     }
 
-    fun transliteration(name: String, divider: String = " "): String {
-        val fullName: MutableList<String> = mutableListOf()
+    fun transliteration(payload: String, divider: String = " "): String {
+        val map = fillTranslitMap()
+        val builder = StringBuilder()
 
-        name.split(" ").map { fullName.add(it) }
+        for (char in payload.trim())
+            builder.append(getTranslChar(char, map))
 
-        for (it in fullName.indices) {
+        return builder.toString().replace(" ", divider)
+    }
 
-            val word: MutableList<String> = mutableListOf()
+    private fun getTranslChar(char: Char, map: HashMap<Char, String>): String {
+        val transl = map[char.lowercaseChar()] ?: char.toString()
 
-            for (letter in fullName[it]) {
-
-                if (!letter.isLowerCase()) {
-                    val translitLetter: String? = TRANSLITERATION_RU_LAT[letter.lowercaseChar()]
-
-                    if (translitLetter != null) {
-                        if (translitLetter.length > 1)
-                            word.add("${translitLetter[0].uppercase()}${translitLetter[1]}")
-                        else word.add(translitLetter.uppercase())
-                    } else word.add(letter.uppercase())
-                } else
-                    word.add(TRANSLITERATION_RU_LAT[letter.lowercaseChar()] ?: letter.toString())
-
-
+        return if (char.isUpperCase() && transl.isNotEmpty())
+            transl.replaceFirstChar {
+                if (it.isLowerCase())
+                    it.titlecase(Locale.getDefault())
+                else it.toString()
             }
-            fullName[it] = word.joinToString("")
-        }
-
-        return fullName.joinToString(divider)
+        else transl
     }
 
-    private val TRANSLITERATION_RU_LAT: Map<Char, String> = mapOf(
-        'а' to "a",
-        'б' to "b",
-        'в' to "v",
-        'г' to "g",
-        'д' to "d",
-        'е' to "e",
-        'ё' to "e",
-        'ж' to "zh",
-        'з' to "z",
-        'и' to "i",
-        'й' to "i",
-        'к' to "k",
-        'л' to "l",
-        'м' to "m",
-        'н' to "n",
-        'о' to "o",
-        'п' to "p",
-        'р' to "r",
-        'с' to "s",
-        'т' to "t",
-        'у' to "u",
-        'ф' to "f",
-        'х' to "h",
-        'ц' to "c",
-        'ч' to "ch",
-        'ш' to "sh",
-        'щ' to "sh'",
-        'ъ' to "",
-        'ы' to "i",
-        'ь' to "",
-        'э' to "e",
-        'ю' to "yu",
-        'я' to "ya",
-    )
+    private fun fillTranslitMap(): HashMap<Char, String> {
+        val map = hashMapOf<Char, String>()
+        map['а'] = "a"
+        map['б'] = "b"
+        map['в'] = "v"
+        map['г'] = "g"
+        map['д'] = "d"
+        map['е'] = "e"
+        map['ё'] = "e"
+        map['ж'] = "zh"
+        map['з'] = "z"
+        map['и'] = "i"
+        map['й'] = "i"
+        map['к'] = "k"
+        map['л'] = "l"
+        map['м'] = "m"
+        map['н'] = "n"
+        map['о'] = "o"
+        map['п'] = "p"
+        map['р'] = "r"
+        map['с'] = "s"
+        map['т'] = "t"
+        map['у'] = "u"
+        map['ф'] = "f"
+        map['х'] = "h"
+        map['ц'] = "c"
+        map['ч'] = "ch"
+        map['ш'] = "sh"
+        map['щ'] = "sh'"
+        map['ъ'] = ""
+        map['ы'] = "i"
+        map['ь'] = ""
+        map['э'] = "e"
+        map['ю'] = "yu"
+        map['я'] = "ya"
+
+        return map
+    }
+
+    fun convertPxToDp(context: Context, px: Int): Int {
+        return (px / context.resources.displayMetrics.density).roundToInt()
+    }
+
+    fun convertDpToPx(context: Context, dp: Float): Int {
+        return (dp * context.resources.displayMetrics.density).roundToInt()
+    }
+
+    fun convertSpToPx(context: Context, sp: Int): Int {
+        return sp * context.resources.displayMetrics.scaledDensity.roundToInt()
+    }
 }
