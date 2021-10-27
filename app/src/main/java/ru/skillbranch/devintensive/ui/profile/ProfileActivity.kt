@@ -13,8 +13,8 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import kotlinx.android.synthetic.main.activity_profile.*
 import ru.skillbranch.devintensive.R
+import ru.skillbranch.devintensive.databinding.ActivityProfileBinding
 import ru.skillbranch.devintensive.models.Profile
 import ru.skillbranch.devintensive.ui.custom.TextBitmapBuilder
 import ru.skillbranch.devintensive.utils.Utils
@@ -29,11 +29,13 @@ class ProfileActivity : AppCompatActivity() {
     var isEditMode = false
     lateinit var viewFields: Map<String, TextView>
     private var userInitials: String? = null
+    private lateinit var binding: ActivityProfileBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_profile)
+        binding = ActivityProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         initViews(savedInstanceState)
         initViewModel()
         Log.d("M_ProfileActivity", "onCreate")
@@ -53,12 +55,12 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun updateRepository(isError: Boolean) {
-        if (isError) et_repository.text.clear()
+        if (isError) binding.etRepository.text.clear()
     }
 
     private fun updateRepoError(isError: Boolean) {
-        wr_repository.isErrorEnabled = isError
-        wr_repository.error = if (isError) "Невалидный адрес репозитория" else null
+        binding.wrRepository.isErrorEnabled = isError
+        binding.wrRepository.error = if (isError) "Невалидный адрес репозитория" else null
     }
 
     private fun updateTheme(mode: Int) {
@@ -78,28 +80,28 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun initViews(savedInstanceState: Bundle?) {
         viewFields = mapOf(
-            "nickName" to tv_nick_name,
-            "rank" to tv_rank,
-            "firstName" to et_first_name,
-            "lastName" to et_last_name,
-            "about" to et_about,
-            "repository" to et_repository,
-            "rating" to tv_rating,
-            "respect" to tv_respect,
+            "nickName" to binding.tvNickName,
+            "rank" to binding.tvRank,
+            "firstName" to binding.etFirstName,
+            "lastName" to binding.etLastName,
+            "about" to binding.etAbout,
+            "repository" to binding.etRepository,
+            "rating" to binding.tvRating,
+            "respect" to binding.tvRespect,
         )
 
         isEditMode = savedInstanceState?.getBoolean(IS_EDIT_MODE, false) ?: false
         showCurrentMode(isEditMode)
 
-        btn_edit.setOnClickListener {
-            viewModel.onRepoEditCompleted(wr_repository.isErrorEnabled)
+        binding.btnEdit.setOnClickListener {
+            viewModel.onRepoEditCompleted(binding.wrRepository.isErrorEnabled)
 
             if (isEditMode) saveProfileInfo()
             isEditMode = !isEditMode
             showCurrentMode(isEditMode)
         }
 
-        et_repository.addTextChangedListener(object: TextWatcher {
+        binding.etRepository.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) { }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { }
             override fun afterTextChanged(s: Editable?) {
@@ -107,7 +109,7 @@ class ProfileActivity : AppCompatActivity() {
             }
         })
 
-        btn_switch_theme.setOnClickListener {
+        binding.btnSwitchTheme.setOnClickListener {
             viewModel.switchTheme()
         }
     }
@@ -128,10 +130,10 @@ class ProfileActivity : AppCompatActivity() {
             v.isEnabled = isEdit
         }
 
-        ic_eye.visibility = if (isEdit) View.GONE else View.VISIBLE
-        wr_about.isCounterEnabled = isEdit
+        binding.icEye.visibility = if (isEdit) View.GONE else View.VISIBLE
+        binding.wrAbout.isCounterEnabled = isEdit
 
-        with(btn_edit) {
+        with(binding.btnEdit) {
             val filter: ColorFilter? = if (isEdit) {
                 PorterDuffColorFilter(
                     resources.getColor(R.color.color_accent, theme),
@@ -162,10 +164,10 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun saveProfileInfo() {
         Profile(
-            firstName = et_first_name.text.toString(),
-            lastName = et_last_name.text.toString(),
-            about = et_about.text.toString(),
-            repository = et_repository.text.toString(),
+            firstName = binding.etFirstName.text.toString(),
+            lastName = binding.etLastName.text.toString(),
+            about = binding.etAbout.text.toString(),
+            repository = binding.etRepository.text.toString(),
         ).apply {
             viewModel.saveProfileData(this)
         }
@@ -175,16 +177,16 @@ class ProfileActivity : AppCompatActivity() {
         Utils.toInitials(profile.firstName, profile.lastName)?.let {
             if (it != userInitials) {
                 val avatar = getAvatarBitmap(it)
-                iv_avatar.setImageBitmap(avatar)
+                binding.ivAvatar.setImageBitmap(avatar)
             }
-        } ?: iv_avatar.setImageResource(R.drawable.avatar_default)
+        } ?: binding.ivAvatar.setImageResource(R.drawable.avatar_default)
     }
 
     private fun getAvatarBitmap(text: String): Bitmap {
         val color = TypedValue()
         theme.resolveAttribute(R.attr.colorAccent, color, true)
 
-        return TextBitmapBuilder(iv_avatar.layoutParams.width, iv_avatar.layoutParams.height)
+        return TextBitmapBuilder(binding.ivAvatar.layoutParams.width, binding.ivAvatar.layoutParams.height)
             .setBackgroundColor(color.data)
             .setText(text)
             .setTextSize(Utils.convertSpToPx(this, 48))
