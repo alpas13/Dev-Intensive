@@ -1,5 +1,6 @@
 package ru.skillbranch.devintensive.ui.main
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
@@ -11,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar
 import ru.skillbranch.devintensive.databinding.ActivityMainBinding
 import ru.skillbranch.devintensive.ui.adapters.ChatAdapter
 import ru.skillbranch.devintensive.ui.adapters.ChatItemTouchHelperCallback
+import ru.skillbranch.devintensive.ui.group.GroupActivity
 import ru.skillbranch.devintensive.viewmodels.MainViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -60,7 +62,10 @@ class MainActivity : AppCompatActivity() {
             addItemDecoration(divider)
         }
 
-        binding.fab.setOnClickListener { /*viewModel.addItems()*/ }
+        binding.fab.setOnClickListener {
+            val intent = Intent(this, GroupActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun initViewModel() {
