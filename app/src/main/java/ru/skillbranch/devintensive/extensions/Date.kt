@@ -15,25 +15,25 @@ enum class TimeUnits {
     SECOND {
         override fun plural(value: Int) =
             if (value == 1 || value % 10 == 1) "$value секунду"
-            else if (value in 2..4 || value % 10 in 2..4) "$value секунды"
+            else if (value in 2..4 || value > 20 && value % 10 in 2..4) "$value секунды"
             else "$value секунд"
     },
     MINUTE {
         override fun plural(value: Int) =
             if (value == 1 || value % 10 == 1) "$value минуту"
-            else if (value in 2..4 || value % 10 in 2..4) "$value минуты"
+            else if (value in 2..4 || value > 20 && value % 10 in 2..4) "$value минуты"
             else "$value минут"
     },
     HOUR {
         override fun plural(value: Int) =
             if (value == 1 || value % 10 == 1) "$value час"
-            else if (value in 2..4 || value % 10 in 2..4) "$value часа"
+            else if (value in 2..4 || value > 20 && value % 10 in 2..4) "$value часа"
             else "$value часов"
     },
     DAY {
         override fun plural(value: Int) =
             if (value == 1 || value % 10 == 1) "1 день"
-            else if (value in 2..4 || value % 10 in 2..4) "$value дня"
+            else if (value in 2..4 || value > 20 && value % 10 in 2..4) "$value дня"
             else "$value дней"
     };
 
@@ -58,6 +58,18 @@ fun Date.add(value: Int, units: TimeUnits = TimeUnits.SECOND): Date {
     }
 
     return this
+}
+
+fun Date.shortFormat(): String? {
+    val pattern = if (this.isSameDate(Date())) "HH:mm" else "dd.MM.yy"
+    val dateFormat = SimpleDateFormat(pattern, Locale("ru"))
+    return dateFormat.format(this)
+}
+
+fun Date.isSameDate(date: Date): Boolean {
+    val day1 = this.time / DAY
+    val day2 = date.time / DAY
+    return day1 == day2
 }
 
 fun Date.humanizeDiff(date: Date = Date()): String {
