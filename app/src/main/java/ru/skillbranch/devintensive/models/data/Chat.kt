@@ -13,18 +13,25 @@ data class Chat(
     var isArchived: Boolean = false
 ) {
     fun unreadableMessageCount(): Int {
-        //TODO("Not yet implemented")
-        return 0
+        var count = 0
+        for (message in messages) {
+            if (!message.isRead) count++
+        }
+        return count
     }
 
-    private fun lastMessageDate(): Date? {
-        //TODO("Not yet implemented")
-        return Date()
+    fun lastMessageDate(): Date? {
+        return if (messages.isNotEmpty()) {
+            messages[messages.lastIndex].date
+        } else null
     }
 
-    private fun lastMessageShort(): Pair<String, String> {
-        //TODO("Not yet implemented")
-        return "Сообщений еще нет" to "@John_Doe"
+    fun lastMessageShort(): Pair<String, String> {
+        return if (messages.isNotEmpty()) {
+            val message = messages[messages.lastIndex]
+
+            message.getMessageBody() to "${message.from?.firstName}"
+        } else "Сообщений еще нет" to "@John_Doe"
     }
 
     private fun isSingle(): Boolean = members.size == 1
@@ -35,7 +42,7 @@ data class Chat(
             ChatItem(
                 id,
                 user.avatar,
-                Utils.toInitials(user.firstName, user.lastName) ?: "??" ,
+                Utils.toInitials(user.firstName, user.lastName) ?: "??",
                 "${user.firstName ?: ""} ${user.lastName ?: ""}",
                 lastMessageShort().first,
                 unreadableMessageCount(),
@@ -46,7 +53,7 @@ data class Chat(
             ChatItem(
                 id,
                 null,
-                "" ,
+                "",
                 title,
                 lastMessageShort().first,
                 unreadableMessageCount(),
